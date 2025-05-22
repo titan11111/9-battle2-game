@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>クイズバトルRPG</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="game-container">
+    <div id="status-bar">
+      <div id="hp-container">
+        <span>HP:</span>
+        <div id="hp-hearts"></div>
+      </div>
+      <div id="exp-container">
+        <span>経験値:</span>
+        <div id="exp-bar"><div id="exp-fill"></div></div>
+        <span id="exp-text">0/100</span>
+      </div>
+      <div id="level-display">Lv.1</div>
+    </div>
+
+    <div id="game-area">
+      <div id="player"></div>
+      <!-- 敵と魔王はJSで追加 -->
+    </div>
+
+    <div id="quiz-container" class="hidden">
+      <div id="quiz-header">
+        <h2>クイズ</h2>
+        <div id="quiz-genre">ジャンル: <span id="quiz-genre-name"></span></div>
+      </div>
+      <div id="question-box">
+        <p id="question-text"></p>
+      </div>
+      <div id="choices-box">
+        <button class="choice-btn" id="choice-0"></button>
+        <button class="choice-btn" id="choice-1"></button>
+        <button class="choice-btn" id="choice-2"></button>
+        <button class="choice-btn" id="choice-3"></button>
+      </div>
+    </div>
+
+    <div id="message-box" class="hidden"></div>
+
+    <div id="game-over" class="hidden">
+      <h2>ゲームオーバー</h2>
+      <p>スコア: <span id="final-score">0</span></p>
+      <button onclick="location.reload()">もう一度プレイ</button>
+    </div>
+
+    <div id="game-clear" class="hidden">
+      <h2>🎉 魔王を倒した！</h2>
+      <p>世界は救われた…君こそ伝説の勇者だ！</p>
+      <p>スコア: <span id="clear-score">0</span></p>
+      <p>過去最高スコア: <span id="best-score">0</span></p>
+      <button onclick="location.reload()">もう一度プレイ</button>
+    </div>
+  </div>
+
+  <audio id="bgm-field" src="./audio/field.mp3" loop preload="auto"></audio>
+  <audio id="bgm-battle" src="./audio/sentou.mp3" loop preload="auto"></audio>
+  <audio id="bgm-maou" src="./audio/maou.mp3" loop preload="auto"></audio>
+  <audio id="se-correct" src="./audio/seikai2.mp3" preload="auto"></audio>
+  <audio id="se-wrong" src="./audio/fuseikai2.mp3" preload="auto"></audio>
+  <audio id="se-levelup" src="./audio/levelup.mp3" preload="auto"></audio>
+
+  <script src="./quizData.js"></script>
+  <script src="./script.js" defer></script>
+</body>
+</html>

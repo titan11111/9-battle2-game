@@ -1,0 +1,222 @@
+{
+  "一般知識": [
+    {
+      "question": "日本の首都はどこですか？",
+      "choices": [
+        "大阪",
+        "東京",
+        "京都",
+        "名古屋"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "question": "1年は何日ですか？",
+      "choices": [
+        "365日",
+        "366日",
+        "360日",
+        "370日"
+      ],
+      "correctAnswer": 0
+    }
+  ],
+  "算数": [
+    {
+      "question": "7 + 8 = ?",
+      "choices": [
+        "13",
+        "14",
+        "15",
+        "16"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "question": "10 × 5 = ?",
+      "choices": [
+        "40",
+        "45",
+        "50",
+        "55"
+      ],
+      "correctAnswer": 2
+    }
+  ],
+  "理科": [
+    {
+      "question": "水の化学式は何ですか？",
+      "choices": [
+        "H2O",
+        "CO2",
+        "O2",
+        "H2SO4"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "question": "太陽系で一番大きな惑星は？",
+      "choices": [
+        "地球",
+        "火星",
+        "木星",
+        "土星"
+      ],
+      "correctAnswer": 2
+    }
+  ],
+  "社会": [
+    {
+      "question": "日本の都道府県の数は？",
+      "choices": [
+        "45",
+        "46",
+        "47",
+        "48"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "question": "日本の五大湖はどれでしょう？",
+      "choices": [
+        "琵琶湖",
+        "サロマ湖",
+        "カスピ海",
+        "霞ヶ浦"
+      ],
+      "correctAnswer": 0
+    }
+  ],
+  "英語": [
+    {
+      "question": "「りんご」は英語で何と言いますか？",
+      "choices": [
+        "Orange",
+        "Banana",
+        "Apple",
+        "Grape"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "question": "「こんにちは」は英語で何と言いますか？",
+      "choices": [
+        "Good morning",
+        "Hello",
+        "Good evening",
+        "Goodbye"
+      ],
+      "correctAnswer": 1
+    }
+  ],
+  "音楽": [
+    {
+      "question": "ピアノの鍵盤は全部で何個ありますか？",
+      "choices": [
+        "76個",
+        "88個",
+        "64個",
+        "100個"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "question": "バイオリンには何本の弦がありますか？",
+      "choices": [
+        "3本",
+        "4本",
+        "5本",
+        "6本"
+      ],
+      "correctAnswer": 1
+    }
+  ],
+  "スポーツ": [
+    {
+      "question": "サッカーは1チーム何人で行いますか？",
+      "choices": [
+        "9人",
+        "10人",
+        "11人",
+        "12人"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "question": "バスケットボールのゴールの高さは？",
+      "choices": [
+        "2.5m",
+        "3.0m",
+        "3.05m",
+        "3.5m"
+      ],
+      "correctAnswer": 2
+    }
+  ],
+  "食べ物": [
+    {
+      "question": "お寿司の主な材料は何ですか？",
+      "choices": [
+        "小麦粉",
+        "米",
+        "そば粉",
+        "パン粉"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "question": "カレーのスパイスで有名なのは？",
+      "choices": [
+        "ターメリック",
+        "シナモン",
+        "パセリ",
+        "バジル"
+      ],
+      "correctAnswer": 0
+    }
+  ],
+  "動物": [
+    {
+      "question": "コアラが主に食べるものは？",
+      "choices": [
+        "竹",
+        "ユーカリ",
+        "バナナ",
+        "魚"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "question": "一番速く走れる動物は？",
+      "choices": [
+        "ライオン",
+        "チーター",
+        "トラ",
+        "カンガルー"
+      ],
+      "correctAnswer": 1
+    }
+  ],
+  "歴史": [
+    {
+      "question": "織田信長が本能寺で亡くなったのは何年？",
+      "choices": [
+        "1582年",
+        "1600年",
+        "1543年",
+        "1615年"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "question": "江戸時代の将軍は何家だった？",
+      "choices": [
+        "豊臣家",
+        "徳川家",
+        "織田家",
+        "足利家"
+      ],
+      "correctAnswer": 1
+    }
+  ]
+}
