@@ -5,13 +5,26 @@ const aiTypes = {
   enemy1: 'chase',
   enemy2: 'flee',
   enemy3: 'dash',
-  enemy4: 'wait',
+  enemy4: 'random', // ← 犬を確実に動くAIへ変更
   enemy5: 'bounce',
   enemy6: 'random',
   enemy7: 'random',
   enemy8: 'random',
   enemy9: 'random',
   enemy10: 'random'
+};
+
+const enemyNames = {
+  enemy1: "スライムン",
+  enemy2: "コウモリン",
+  enemy3: "ドクロベエ",
+  enemy4: "ワンコソーシャル", // ← 犬の名前
+  enemy5: "うでだけん",
+  enemy6: "モクモク",
+  enemy7: "ファイヤ坊",
+  enemy8: "バウンサー",
+  enemy9: "タマシイくん",
+  enemy10: "ばくだんボー"
 };
 
 const gameState = {
@@ -97,7 +110,8 @@ function createEnemy(index) {
     speed: 1 + Math.random(),
     angle: Math.random() * Math.PI * 2,
     genre: genreList[index],
-    ai
+    ai,
+    id
   });
 }
 
@@ -136,15 +150,22 @@ function moveEnemies() {
         break;
       }
       case 'wait': {
-        if (Math.random() < 0.98) return; // ほとんど止まる
+        if (Math.random() < 0.02) {
+          const angle = Math.random() * Math.PI * 2;
+          enemy.x += Math.cos(angle) * speed;
+          enemy.y += Math.sin(angle) * speed;
+        }
         break;
       }
       case 'bounce': {
         if (!enemy.angle) enemy.angle = Math.random() * Math.PI * 2;
         enemy.x += Math.cos(enemy.angle) * speed;
         enemy.y += Math.sin(enemy.angle) * speed;
-        if (enemy.x <= 0 || enemy.x >= gameArea.clientWidth - 67) enemy.angle = Math.PI - enemy.angle;
-        if (enemy.y <= 0 || enemy.y >= gameArea.clientHeight - 67) enemy.angle = -enemy.angle;
+
+        if (enemy.x <= 0 || enemy.x >= gameArea.clientWidth - 67)
+          enemy.angle = Math.PI - enemy.angle + (Math.random() - 0.5);
+        if (enemy.y <= 0 || enemy.y >= gameArea.clientHeight - 67)
+          enemy.angle = -enemy.angle + (Math.random() - 0.5);
         break;
       }
       default: {
@@ -154,14 +175,12 @@ function moveEnemies() {
       }
     }
 
-    // 画面端補正
     enemy.x = Math.max(0, Math.min(gameArea.clientWidth - 67, enemy.x));
     enemy.y = Math.max(0, Math.min(gameArea.clientHeight - 67, enemy.y));
     enemy.el.style.left = enemy.x + "px";
     enemy.el.style.top = enemy.y + "px";
   });
 
-  // 敵がいないなら補充
   if (gameState.enemies.length === 0 && !gameState.isBossBattle) {
     spawnEnemies();
   }
@@ -195,8 +214,12 @@ function checkCollision() {
     if (px < ex + ew && px + pw > ex && py < ey + eh && py + ph > ey) {
       gameState.currentEnemy = enemy;
       gameState.isPaused = true;
+
+      const name = enemyNames[enemy.id] || "敵";
+      showMessage(`${name} が現れた！`);
+
       playBGM(bgmBattle);
-      showQuiz(enemy.genre);
+      setTimeout(() => showQuiz(enemy.genre), 800);
       break;
     }
   }
