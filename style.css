@@ -1,156 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* 省略部は既存のCSSと同じ */
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Press Start 2P', monospace;
-  background: #111;
-  color: white;
-  overflow: hidden;
-}
-
-#game-container {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-}
-
-#game-area {
+#controller {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('./images/fi-rudo.png'); /* ✅ 草むら背景に対応 */
-  background-size: cover;
-  background-repeat: repeat;
-  overflow: hidden;
-}
-
-#player {
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  background-image: url('./images/hero.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  z-index: 10;
-}
-
-.enemy, .boss {
-  position: absolute;
-  width: 67px;
-  height: 67px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 5;
-}
-
-#status-bar {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 20;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-#hp-hearts .heart {
-  font-size: 24px;
-  color: red;
-}
-
-#exp-bar {
-  width: 160px;
-  height: 20px;
-  background: #333;
-  border: 2px solid white;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-}
-
-#exp-fill {
-  height: 100%;
-  width: 0%;
-  background: lime;
-  transition: width 0.3s ease;
-}
-
-#exp-text {
-  font-size: 12px;
-  margin-left: 10px;
-}
-
-#level-display {
-  font-size: 14px;
-  color: yellow;
-}
-
-#quiz-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 300px;
-  transform: translate(-50%, -50%);
-  background: #333;
-  border: 4px solid white;
-  padding: 20px;
-  z-index: 100;
-}
-
-.choice-btn {
-  display: block;
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
-  background: black;
-  color: white;
-  border: 2px solid white;
-}
-
-.hidden {
-  display: none;
-}
-
-#message-box {
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 20px;
-  background: black;
-  border: 2px solid white;
-  font-size: 14px;
-  font-family: 'Press Start 2P', monospace;
+  bottom: 20px;
+  right: 20px;
   z-index: 200;
-}
-
-#game-over, #game-clear {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  background: #000;
-  border: 4px solid white;
-  padding: 30px;
-  z-index: 300;
-}
-
-#status-bar {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  border-radius: 8px;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 20;
   display: flex;
-  gap: 20px;
+  flex-direction: column;
   align-items: center;
+  gap: 10px;
+}
+
+#controller button {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  border-radius: 8px;
+}
+
+#controller .horizontal {
+  display: flex;
+  gap: 10px;
 }
