@@ -1,5 +1,54 @@
-/* 省略部は既存のCSSと同じ */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Press Start 2P', monospace;
+  background: #111;
+  color: white;
+  overflow: hidden;
+}
+
+#game-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+#game-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('./images/fi-rudo.png');
+  background-size: cover;
+  background-repeat: repeat;
+  overflow: hidden;
+}
+
+#player {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background-image: url('./images/hero.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 10;
+}
+
+.enemy, .boss {
+  position: absolute;
+  width: 67px;
+  height: 67px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 5;
+}
+
+/* コントローラー */
 #controller {
   position: absolute;
   bottom: 20px;
