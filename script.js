@@ -66,6 +66,12 @@ const seCorrect = document.getElementById("se-correct");
 const seWrong = document.getElementById("se-wrong");
 const seLevelup = document.getElementById("se-levelup");
 
+// バーチャル十字キー要素
+const upBtn = document.getElementById("up-btn");
+const downBtn = document.getElementById("down-btn");
+const leftBtn = document.getElementById("left-btn");
+const rightBtn = document.getElementById("right-btn");
+
 function updateHP() {
   heartsEl.innerHTML = "";
   for (let i = 0; i < gameState.hp; i++) {
@@ -119,6 +125,7 @@ function spawnEnemies() {
   gameState.enemies = [];
   for (let i = 0; i < 10; i++) createEnemy(i);
 }
+
 function moveEnemies() {
   if (gameState.isPaused) return;
 
@@ -189,10 +196,18 @@ function moveEnemies() {
 function movePlayer() {
   if (gameState.isPaused) return;
   const speed = gameState.player.speed;
+  
+  // キーボード操作
   if (keys["ArrowUp"]) gameState.player.y -= speed;
   if (keys["ArrowDown"]) gameState.player.y += speed;
   if (keys["ArrowLeft"]) gameState.player.x -= speed;
   if (keys["ArrowRight"]) gameState.player.x += speed;
+  
+  // バーチャル十字キー操作
+  if (virtualKeys.up) gameState.player.y -= speed;
+  if (virtualKeys.down) gameState.player.y += speed;
+  if (virtualKeys.left) gameState.player.x -= speed;
+  if (virtualKeys.right) gameState.player.x += speed;
 
   gameState.player.x = Math.max(0, Math.min(gameArea.clientWidth - 48, gameState.player.x));
   gameState.player.y = Math.max(0, Math.min(gameArea.clientHeight - 48, gameState.player.y));
@@ -201,9 +216,73 @@ function movePlayer() {
   playerEl.style.top = gameState.player.y + "px";
 }
 
+// キーボード操作
 const keys = {};
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => delete keys[e.key]);
+
+// バーチャル十字キー操作
+const virtualKeys = { up: false, down: false, left: false, right: false };
+
+// タッチイベントの設定
+function setupVirtualControls() {
+  // 上ボタン
+  upBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    virtualKeys.up = true;
+  });
+  upBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    virtualKeys.up = false;
+  });
+  
+  // 下ボタン
+  downBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    virtualKeys.down = true;
+  });
+  downBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    virtualKeys.down = false;
+  });
+  
+  // 左ボタン
+  leftBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    virtualKeys.left = true;
+  });
+  leftBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    virtualKeys.left = false;
+  });
+  
+  // 右ボタン
+  rightBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    virtualKeys.right = true;
+  });
+  rightBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    virtualKeys.right = false;
+  });
+
+  // マウスイベントも追加（デバッグ用）
+  upBtn.addEventListener("mousedown", () => virtualKeys.up = true);
+  upBtn.addEventListener("mouseup", () => virtualKeys.up = false);
+  upBtn.addEventListener("mouseleave", () => virtualKeys.up = false);
+  
+  downBtn.addEventListener("mousedown", () => virtualKeys.down = true);
+  downBtn.addEventListener("mouseup", () => virtualKeys.down = false);
+  downBtn.addEventListener("mouseleave", () => virtualKeys.down = false);
+  
+  leftBtn.addEventListener("mousedown", () => virtualKeys.left = true);
+  leftBtn.addEventListener("mouseup", () => virtualKeys.left = false);
+  leftBtn.addEventListener("mouseleave", () => virtualKeys.left = false);
+  
+  rightBtn.addEventListener("mousedown", () => virtualKeys.right = true);
+  rightBtn.addEventListener("mouseup", () => virtualKeys.right = false);
+  rightBtn.addEventListener("mouseleave", () => virtualKeys.right = false);
+}
 
 function checkCollision() {
   if (gameState.isPaused || gameState.isBossBattle) return;
@@ -358,6 +437,7 @@ function startGame() {
   playerEl.style.top = gameState.player.y + "px";
 
   spawnEnemies();
+  setupVirtualControls(); // バーチャル十字キーの設定
   playBGM(bgmField);
   requestAnimationFrame(gameLoop);
 }
@@ -368,44 +448,6 @@ window.addEventListener("load", () => {
     .then(data => {
       quizData = data;
       genreList = Object.keys(quizData);
-      startGame();
-    })
-    .catch(err => console.error("クイズデータの読み込み失敗:", err));
-});
-// 既存のキー入力
-const keys = {};
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => delete keys[e.key]);
-
-// ▼ スマホ用コントローラ対応
-function setupTouchController() {
-  const mapping = {
-    "btn-up": "ArrowUp",
-    "btn-down": "ArrowDown",
-    "btn-left": "ArrowLeft",
-    "btn-right": "ArrowRight"
-  };
-
-  Object.entries(mapping).forEach(([btnId, keyName]) => {
-    const btn = document.getElementById(btnId);
-    btn.addEventListener("touchstart", e => {
-      e.preventDefault();
-      keys[keyName] = true;
-    });
-    btn.addEventListener("touchend", e => {
-      e.preventDefault();
-      delete keys[keyName];
-    });
-  });
-}
-
-window.addEventListener("load", () => {
-  fetch("quizData.json")
-    .then(res => res.json())
-    .then(data => {
-      quizData = data;
-      genreList = Object.keys(quizData);
-      setupTouchController(); // ← 仮想コントローラー起動
       startGame();
     })
     .catch(err => console.error("クイズデータの読み込み失敗:", err));
