@@ -6,7 +6,7 @@
   <title>クイズバトルRPG</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
+<body tabindex="0">
   <div id="game-container">
     <div id="status-bar">
       <div id="hp-container">
@@ -68,5 +68,11 @@
 
   <script src="./quizData.js"></script>
   <script src="./script.js" defer></script>
+  <script>
+    // 主人公を動かせるように body にフォーカスを与える
+    window.addEventListener("load", () => {
+      document.body.focus();
+    });
+  </script>
 </body>
 </html>
