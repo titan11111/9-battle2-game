@@ -91,7 +91,7 @@ function updateEXP() {
 
 function playBGM(bgm) {
   [bgmField, bgmBattle, bgmMaou].forEach(b => { b.pause(); b.currentTime = 0; });
-  bgm.play();
+  bgm.play().catch(() => {}); // 音声再生エラーを無視
 }
 
 function createEnemy(index) {
@@ -203,7 +203,7 @@ function movePlayer() {
   if (keys["ArrowLeft"]) gameState.player.x -= speed;
   if (keys["ArrowRight"]) gameState.player.x += speed;
   
-  // バーチャル十字キー操作
+  // バーチャル十字キー操作（改良版）
   if (virtualKeys.up) gameState.player.y -= speed;
   if (virtualKeys.down) gameState.player.y += speed;
   if (virtualKeys.left) gameState.player.x -= speed;
@@ -221,67 +221,50 @@ const keys = {};
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => delete keys[e.key]);
 
-// バーチャル十字キー操作
+// バーチャル十字キー操作（改良版）
 const virtualKeys = { up: false, down: false, left: false, right: false };
 
-// タッチイベントの設定
 function setupVirtualControls() {
-  // 上ボタン
-  upBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    virtualKeys.up = true;
-  });
-  upBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    virtualKeys.up = false;
-  });
-  
-  // 下ボタン
-  downBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    virtualKeys.down = true;
-  });
-  downBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    virtualKeys.down = false;
-  });
-  
-  // 左ボタン
-  leftBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    virtualKeys.left = true;
-  });
-  leftBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    virtualKeys.left = false;
-  });
-  
-  // 右ボタン
-  rightBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    virtualKeys.right = true;
-  });
-  rightBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    virtualKeys.right = false;
-  });
+  const buttons = [
+    { element: upBtn, key: 'up' },
+    { element: downBtn, key: 'down' },
+    { element: leftBtn, key: 'left' },
+    { element: rightBtn, key: 'right' }
+  ];
 
-  // マウスイベントも追加（デバッグ用）
-  upBtn.addEventListener("mousedown", () => virtualKeys.up = true);
-  upBtn.addEventListener("mouseup", () => virtualKeys.up = false);
-  upBtn.addEventListener("mouseleave", () => virtualKeys.up = false);
-  
-  downBtn.addEventListener("mousedown", () => virtualKeys.down = true);
-  downBtn.addEventListener("mouseup", () => virtualKeys.down = false);
-  downBtn.addEventListener("mouseleave", () => virtualKeys.down = false);
-  
-  leftBtn.addEventListener("mousedown", () => virtualKeys.left = true);
-  leftBtn.addEventListener("mouseup", () => virtualKeys.left = false);
-  leftBtn.addEventListener("mouseleave", () => virtualKeys.left = false);
-  
-  rightBtn.addEventListener("mousedown", () => virtualKeys.right = true);
-  rightBtn.addEventListener("mouseup", () => virtualKeys.right = false);
-  rightBtn.addEventListener("mouseleave", () => virtualKeys.right = false);
+  buttons.forEach(({ element, key }) => {
+    // マウスイベント
+    element.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      virtualKeys[key] = true;
+    });
+    
+    element.addEventListener("mouseup", (e) => {
+      e.preventDefault();
+      virtualKeys[key] = false;
+    });
+    
+    element.addEventListener("mouseleave", (e) => {
+      e.preventDefault();
+      virtualKeys[key] = false;
+    });
+
+    // タッチイベント
+    element.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      virtualKeys[key] = true;
+    });
+    
+    element.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      virtualKeys[key] = false;
+    });
+    
+    element.addEventListener("touchcancel", (e) => {
+      e.preventDefault();
+      virtualKeys[key] = false;
+    });
+  });
 }
 
 function checkCollision() {
@@ -327,15 +310,17 @@ function checkAnswer(choice, correct, genre) {
   gameState.currentEnemy = null;
 
   if (choice === correct) {
-    seCorrect.play();
+    seCorrect.play().catch(() => {});
     enemy.el.remove();
     gameState.enemies = gameState.enemies.filter(e => e !== enemy);
     gameState.defeated++;
     gameState.score += 100;
     gainEXP(25);
+    showMessage("正解！");
   } else {
-    seWrong.play();
+    seWrong.play().catch(() => {});
     gameState.hp -= gameState.isBossBattle ? 3 : 1;
+    showMessage("不正解...");
     if (gameState.hp <= 0) return gameOver();
   }
 
@@ -357,7 +342,7 @@ function gainEXP(amount) {
 function levelUp() {
   gameState.level++;
   gameState.expToNext += 50;
-  seLevelup.play();
+  seLevelup.play().catch(() => {});
   showMessage(`レベル${gameState.level}になった！`);
   if (gameState.level === 2 || gameState.level === 3) {
     gameState.hp++;
@@ -374,81 +359,4 @@ function checkBossSpawn() {
 }
 
 function spawnBoss() {
-  const boss = document.createElement("div");
-  boss.className = "boss";
-  boss.style.backgroundImage = "url('./images/maou.png')";
-  boss.style.left = "50%";
-  boss.style.top = "30%";
-  boss.style.transform = "translate(-50%, 0)";
-  gameArea.appendChild(boss);
-  playBGM(bgmMaou);
-  showMessage("魔王があらわれた…！");
-  setTimeout(() => {
-    showQuiz("小4わり算");
-  }, 1500);
-}
-
-function showMessage(text) {
-  messageBox.textContent = text;
-  messageBox.classList.remove("hidden");
-  setTimeout(() => {
-    messageBox.classList.add("hidden");
-  }, 1500);
-}
-
-function gameOver() {
-  gameState.isPaused = true;
-  gameOverEl.classList.remove("hidden");
-  finalScore.textContent = gameState.score;
-}
-
-function gameClear() {
-  gameState.isPaused = true;
-  gameClearEl.classList.remove("hidden");
-  clearScore.textContent = gameState.score;
-  const last = parseInt(localStorage.getItem("bestScore") || "0");
-  if (gameState.score > last) {
-    localStorage.setItem("bestScore", gameState.score);
-  }
-  bestScore.textContent = localStorage.getItem("bestScore");
-}
-
-function gameLoop() {
-  if (!gameState.isPaused) {
-    movePlayer();
-    moveEnemies();
-    checkCollision();
-  }
-  requestAnimationFrame(gameLoop);
-}
-
-function startGame() {
-  gameState.hp = 3;
-  gameState.level = 1;
-  gameState.exp = 0;
-  gameState.expToNext = 100;
-  gameState.score = 0;
-  gameState.isPaused = false;
-  gameState.isBossBattle = false;
-  gameState.quizHistory = {};
-  updateHP();
-  updateEXP();
-  playerEl.style.left = gameState.player.x + "px";
-  playerEl.style.top = gameState.player.y + "px";
-
-  spawnEnemies();
-  setupVirtualControls(); // バーチャル十字キーの設定
-  playBGM(bgmField);
-  requestAnimationFrame(gameLoop);
-}
-
-window.addEventListener("load", () => {
-  fetch("quizData.json")
-    .then(res => res.json())
-    .then(data => {
-      quizData = data;
-      genreList = Object.keys(quizData);
-      startGame();
-    })
-    .catch(err => console.error("クイズデータの読み込み失敗:", err));
-});
+  //
