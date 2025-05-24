@@ -372,3 +372,41 @@ window.addEventListener("load", () => {
     })
     .catch(err => console.error("クイズデータの読み込み失敗:", err));
 });
+// 既存のキー入力
+const keys = {};
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => delete keys[e.key]);
+
+// ▼ スマホ用コントローラ対応
+function setupTouchController() {
+  const mapping = {
+    "btn-up": "ArrowUp",
+    "btn-down": "ArrowDown",
+    "btn-left": "ArrowLeft",
+    "btn-right": "ArrowRight"
+  };
+
+  Object.entries(mapping).forEach(([btnId, keyName]) => {
+    const btn = document.getElementById(btnId);
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      keys[keyName] = true;
+    });
+    btn.addEventListener("touchend", e => {
+      e.preventDefault();
+      delete keys[keyName];
+    });
+  });
+}
+
+window.addEventListener("load", () => {
+  fetch("quizData.json")
+    .then(res => res.json())
+    .then(data => {
+      quizData = data;
+      genreList = Object.keys(quizData);
+      setupTouchController(); // ← 仮想コントローラー起動
+      startGame();
+    })
+    .catch(err => console.error("クイズデータの読み込み失敗:", err));
+});
