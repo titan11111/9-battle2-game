@@ -5,7 +5,7 @@ const aiTypes = {
   enemy1: 'chase',
   enemy2: 'flee',
   enemy3: 'dash',
-  enemy4: 'random', // ← 犬を確実に動くAIへ変更
+  enemy4: 'random',
   enemy5: 'bounce',
   enemy6: 'random',
   enemy7: 'random',
@@ -18,7 +18,7 @@ const enemyNames = {
   enemy1: "スライムン",
   enemy2: "コウモリン",
   enemy3: "ドクロベエ",
-  enemy4: "ワンコソーシャル", // ← 犬の名前
+  enemy4: "ワンコソーシャル",
   enemy5: "うでだけん",
   enemy6: "モクモク",
   enemy7: "ファイヤ坊",
@@ -65,6 +65,31 @@ const bgmMaou = document.getElementById("bgm-maou");
 const seCorrect = document.getElementById("se-correct");
 const seWrong = document.getElementById("se-wrong");
 const seLevelup = document.getElementById("se-levelup");
+
+const keys = {};
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => delete keys[e.key]);
+
+function setupTouchController() {
+  const mapping = {
+    "btn-up": "ArrowUp",
+    "btn-down": "ArrowDown",
+    "btn-left": "ArrowLeft",
+    "btn-right": "ArrowRight"
+  };
+
+  Object.entries(mapping).forEach(([btnId, key]) => {
+    const btn = document.getElementById(btnId);
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      keys[key] = true;
+    });
+    btn.addEventListener("touchend", e => {
+      e.preventDefault();
+      delete keys[key];
+    });
+  });
+}
 
 function updateHP() {
   heartsEl.innerHTML = "";
@@ -119,6 +144,7 @@ function spawnEnemies() {
   gameState.enemies = [];
   for (let i = 0; i < 10; i++) createEnemy(i);
 }
+
 function moveEnemies() {
   if (gameState.isPaused) return;
 
@@ -200,10 +226,6 @@ function movePlayer() {
   playerEl.style.left = gameState.player.x + "px";
   playerEl.style.top = gameState.player.y + "px";
 }
-
-const keys = {};
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => delete keys[e.key]);
 
 function checkCollision() {
   if (gameState.isPaused || gameState.isBossBattle) return;
@@ -368,44 +390,7 @@ window.addEventListener("load", () => {
     .then(data => {
       quizData = data;
       genreList = Object.keys(quizData);
-      startGame();
-    })
-    .catch(err => console.error("クイズデータの読み込み失敗:", err));
-});
-// 既存のキー入力
-const keys = {};
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => delete keys[e.key]);
-
-// ▼ スマホ用コントローラ対応
-function setupTouchController() {
-  const mapping = {
-    "btn-up": "ArrowUp",
-    "btn-down": "ArrowDown",
-    "btn-left": "ArrowLeft",
-    "btn-right": "ArrowRight"
-  };
-
-  Object.entries(mapping).forEach(([btnId, keyName]) => {
-    const btn = document.getElementById(btnId);
-    btn.addEventListener("touchstart", e => {
-      e.preventDefault();
-      keys[keyName] = true;
-    });
-    btn.addEventListener("touchend", e => {
-      e.preventDefault();
-      delete keys[keyName];
-    });
-  });
-}
-
-window.addEventListener("load", () => {
-  fetch("quizData.json")
-    .then(res => res.json())
-    .then(data => {
-      quizData = data;
-      genreList = Object.keys(quizData);
-      setupTouchController(); // ← 仮想コントローラー起動
+      setupTouchController(); // ← スマホ操作追加
       startGame();
     })
     .catch(err => console.error("クイズデータの読み込み失敗:", err));
