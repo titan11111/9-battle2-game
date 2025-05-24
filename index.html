@@ -6,7 +6,7 @@
   <title>クイズバトルRPG</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body tabindex="0">
+<body>
   <div id="game-container">
     <div id="status-bar">
       <div id="hp-container">
@@ -23,6 +23,20 @@
 
     <div id="game-area">
       <div id="player"></div>
+      <!-- 敵と魔王はJSで追加 -->
+    </div>
+
+    <!-- 携帯用バーチャル十字キー -->
+    <div id="virtual-controls">
+      <div id="dpad">
+        <button class="dpad-btn" id="up-btn">↑</button>
+        <div class="dpad-middle">
+          <button class="dpad-btn" id="left-btn">←</button>
+          <div class="dpad-center"></div>
+          <button class="dpad-btn" id="right-btn">→</button>
+        </div>
+        <button class="dpad-btn" id="down-btn">↓</button>
+      </div>
     </div>
 
     <div id="quiz-container" class="hidden">
@@ -56,15 +70,6 @@
       <p>過去最高スコア: <span id="best-score">0</span></p>
       <button onclick="location.reload()">もう一度プレイ</button>
     </div>
-
-    <div id="controller">
-      <button id="btn-up">↑</button>
-      <div class="horizontal">
-        <button id="btn-left">←</button>
-        <button id="btn-down">↓</button>
-        <button id="btn-right">→</button>
-      </div>
-    </div>
   </div>
 
   <audio id="bgm-field" src="./audio/field.mp3" loop preload="auto"></audio>
@@ -76,10 +81,5 @@
 
   <script src="./quizData.js"></script>
   <script src="./script.js" defer></script>
-  <script>
-    window.addEventListener("load", () => {
-      document.body.focus();
-    });
-  </script>
 </body>
 </html>
