@@ -7,12 +7,13 @@ body {
   background: #111;
   color: white;
   overflow: hidden;
-  /* タッチ操作の改善 */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.hidden {
+  display: none;
 }
 
 #game-container {
@@ -40,13 +41,15 @@ body {
   background-image: url('./images/hero.png');
   background-size: contain;
   background-repeat: no-repeat;
+  background-position: center;
   z-index: 10;
+  transition: all 0.1s ease;
 }
 
-.enemy, .boss {
+.enemy {
   position: absolute;
-  width: 67px;
-  height: 67px;
+  width: 80px;
+  height: 80px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -57,45 +60,35 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
-  z-index: 20;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: white;
+  font-weight: bold;
+  z-index: 100;
   display: flex;
-  gap: 20px;
+  gap: 15px;
   align-items: center;
-  /* スマホ対応 */
-  flex-wrap: wrap;
+  font-size: 10px;
 }
 
-/* スマホ用ステータスバー調整 */
-@media (max-width: 768px) {
-  #status-bar {
-    gap: 10px;
-    font-size: 10px;
-  }
-  
-  #exp-bar {
-    width: 100px !important;
-  }
-  
-  #exp-text {
-    font-size: 8px !important;
-  }
-  
-  #level-display {
-    font-size: 10px !important;
-  }
+#hp-hearts {
+  display: flex;
+  gap: 2px;
 }
 
 #hp-hearts .heart {
-  font-size: 24px;
+  font-size: 16px;
   color: red;
 }
 
 #exp-bar {
-  width: 160px;
-  height: 20px;
+  width: 120px;
+  height: 16px;
   background: #333;
   border: 2px solid white;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   position: relative;
 }
@@ -108,196 +101,135 @@ body {
 }
 
 #exp-text {
-  font-size: 12px;
-  margin-left: 10px;
+  font-size: 8px;
+  margin-left: 8px;
 }
 
 #level-display {
-  font-size: 14px;
+  font-size: 10px;
   color: yellow;
 }
 
-/* バーチャル十字キー */
-#virtual-controls {
-  position: absolute;
+/* スマホ用コントローラー */
+#controller {
+  position: fixed;
   bottom: 20px;
-  right: 20px;
-  z-index: 15;
-  display: none; /* デフォルトは非表示 */
+  left: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
-/* タッチデバイスでのみ表示 */
-@media (hover: none) and (pointer: coarse) {
-  #virtual-controls {
-    display: block !important;
-  }
+#controller-row1 {
+  display: flex;
+  justify-content: center;
 }
 
-#dpad {
-  width: 120px;
-  height: 120px;
-  display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 2px;
+#controller-row2 {
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 
-.dpad-btn {
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid white;
-  color: white;
+#controller button {
+  width: 60px;
+  height: 60px;
   font-size: 20px;
   font-weight: bold;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
   cursor: pointer;
-  -webkit-user-select: none;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   touch-action: manipulation;
+  transition: all 0.1s ease;
 }
 
-.dpad-btn:active {
-  background: rgba(255, 255, 255, 0.3);
+#controller button:active {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: white;
   transform: scale(0.95);
 }
 
-#up-btn {
-  grid-column: 2;
-  grid-row: 1;
+#controller button:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
-.dpad-middle {
-  grid-column: 1 / 4;
-  grid-row: 2;
-  display: flex;
-  align-items: center;
-}
-
-#left-btn {
-  flex: 1;
-}
-
-.dpad-center {
-  width: 30px;
-  height: 30px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid #666;
-  border-radius: 50%;
-}
-
-#right-btn {
-  flex: 1;
-}
-
-#down-btn {
-  grid-column: 2;
-  grid-row: 3;
-}
-
-#quiz-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  max-width: 300px;
-  transform: translate(-50%, -50%);
-  background: #333;
-  border: 4px solid white;
-  padding: 20px;
-  z-index: 100;
-  box-sizing: border-box;
-}
-
-.choice-btn {
-  display: block;
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
-  background: black;
-  color: white;
-  border: 2px solid white;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.choice-btn:active {
-  background: #333;
-}
-
-/* スマホでのクイズボタン調整 */
-@media (max-width: 768px) {
-  .choice-btn {
-    font-size: 10px;
-    padding: 8px;
+/* タブレット・大画面スマホ用調整 */
+@media (min-width: 768px) {
+  #status-bar {
+    font-size: 12px;
+    padding: 10px 15px;
+    gap: 20px;
   }
   
-  #quiz-container {
-    width: 95%;
-    padding: 15px;
+  #hp-hearts .heart {
+    font-size: 20px;
   }
-}
-
-.hidden {
-  display: none;
-}
-
-#message-box {
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 20px;
-  background: black;
-  border: 2px solid white;
-  font-size: 14px;
-  font-family: 'Press Start 2P', monospace;
-  z-index: 200;
-  max-width: 90%;
-  box-sizing: border-box;
-}
-
-/* スマホでのメッセージボックス調整 */
-@media (max-width: 768px) {
-  #message-box {
-    font-size: 10px;
-    padding: 15px;
-    bottom: 25%;
+  
+  #exp-bar {
+    width: 160px;
+    height: 20px;
   }
-}
-
-#game-over, #game-clear {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  background: #000;
-  border: 4px solid white;
-  padding: 30px;
-  z-index: 300;
-  max-width: 90%;
-  box-sizing: border-box;
-}
-
-/* スマホでのゲーム終了画面調整 */
-@media (max-width: 768px) {
-  #game-over, #game-clear {
-    padding: 20px;
+  
+  #exp-text {
     font-size: 10px;
   }
   
-  #game-over h2, #game-clear h2 {
+  #level-display {
+    font-size: 12px;
+  }
+  
+  #controller button {
+    width: 70px;
+    height: 70px;
+    font-size: 24px;
+  }
+}
+
+/* 縦向きスマホ用調整 */
+@media (max-width: 480px) and (orientation: portrait) {
+  #controller {
+    bottom: 15px;
+    left: 15px;
+  }
+  
+  #controller button {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+  
+  #status-bar {
+    font-size: 8px;
+    padding: 6px 8px;
+    gap: 10px;
+  }
+  
+  #hp-hearts .heart {
     font-size: 14px;
-    margin: 10px 0;
   }
   
-  #game-over button, #game-clear button {
-    font-size: 10px;
-    padding: 10px;
-    margin-top: 15px;
+  #exp-bar {
+    width: 100px;
+    height: 12px;
+  }
+}
+
+/* 横向きスマホ用調整 */
+@media (max-width: 768px) and (orientation: landscape) {
+  #controller {
+    bottom: 10px;
+    left: 10px;
+  }
+  
+  #status-bar {
+    top: 5px;
+    left: 5px;
   }
 }
