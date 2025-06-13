@@ -228,6 +228,7 @@ function spawnEnemies() {
 
 // 敵移動
 function moveEnemies() {
+  if (gameState.isPaused) return;
   const area = document.getElementById("game-area");
   const enemySize = 80;
 
@@ -313,6 +314,12 @@ function removeEnemy(enemy) {
   if (!enemy) return;
   if (enemy.el && enemy.el.parentNode) enemy.el.remove();
   gameState.enemies = gameState.enemies.filter((e) => e !== enemy);
+codex/バグを修正する
+  if (gameState.enemies.length === 0) {
+    spawnEnemies();
+  }
+
+ main
 }
 
 function gainExp(amount) {
