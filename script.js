@@ -52,6 +52,9 @@ function initializeGame() {
   seLevelup = document.getElementById("se-levelup");
 
   // プレイヤー初期位置設定
+  // 画面サイズが小さい場合でもプレイヤーが画面外に出ないよう補正
+  gameState.player.x = Math.max(0, Math.min(areaEl.clientWidth - 48, gameState.player.x));
+  gameState.player.y = Math.max(0, Math.min(areaEl.clientHeight - 48, gameState.player.y));
   updatePlayerPosition();
 }
 
@@ -182,11 +185,17 @@ function spawnEnemies() {
 
     // ランダム位置（プレイヤーから離れた場所）
     let x, y;
+    let attempts = 0;
     do {
       x = Math.random() * (area.clientWidth - 80);
       y = Math.random() * (area.clientHeight - 80);
+      attempts++;
+      if (attempts > 100) {
+        // 画面が極端に狭い場合はループを抜ける
+        break;
+      }
     } while (
-      Math.sqrt(Math.pow(x - gameState.player.x, 2) + Math.pow(y - gameState.player.y, 2)) < 150
+      Math.hypot(x - gameState.player.x, y - gameState.player.y) < 150
     );
 
     enemyEl.style.left = x + "px";
