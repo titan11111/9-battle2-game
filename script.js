@@ -21,13 +21,24 @@ let bgmField;
 let seCorrect, seWrong, seLevelup;
 
 // 初期化
-document.addEventListener("DOMContentLoaded", () => {
-  initializeGame();
-  setupControls();
-  spawnEnemies();
-  updateUI();
-  requestAnimationFrame(gameLoop);
-});
+document.addEventListener("DOMContentLoaded", startGame);
+
+let quizData = {};
+let currentEnemy = null;
+
+function startGame() {
+  fetch("./quizData.json")
+    .then((res) => res.json())
+    .then((data) => {
+      quizData = data;
+      initializeGame();
+      setupControls();
+      spawnEnemies();
+      updateUI();
+      requestAnimationFrame(gameLoop);
+    })
+    .catch((err) => console.error("failed to load quiz data:", err));
+}
 
 // ゲーム初期化
 function initializeGame() {
@@ -234,6 +245,75 @@ function moveEnemies() {
   });
 }
 
+function checkCollision() {
+  if (gameState.isPaused) return;
+  const playerSize = 48;
+  const enemySize = 80;
+  const px = gameState.player.x;
+  const py = gameState.player.y;
+  for (const enemy of gameState.enemies) {
+    if (
+      px < enemy.x + enemySize &&
+      px + playerSize > enemy.x &&
+      py < enemy.y + enemySize &&
+      py + playerSize > enemy.y
+    ) {
+      currentEnemy = enemy;
+      gameState.isPaused = true;
+      showQuiz();
+      break;
+    }
+  }
+}
+
+function showQuiz() {
+  if (!currentEnemy) return;
+  const genres = Object.keys(quizData);
+  if (genres.length === 0) return;
+  const genre = genres[Math.floor(Math.random() * genres.length)];
+  const pool = quizData[genre];
+  const quiz = pool[Math.floor(Math.random() * pool.length)];
+  const container = document.getElementById("quiz-container");
+  document.getElementById("quiz-question").textContent = quiz.question;
+  quiz.choices.forEach((c, i) => {
+    const btn = container.querySelector(`.choice-btn[data-index="${i}"]`);
+    if (btn) {
+      btn.textContent = c;
+      btn.onclick = () => answerQuiz(i, quiz.correctAnswer);
+    }
+  });
+  container.classList.remove("hidden");
+}
+
+function answerQuiz(choice, correct) {
+  document.getElementById("quiz-container").classList.add("hidden");
+  if (choice === correct) {
+    if (seCorrect) seCorrect.play().catch(() => {});
+    removeEnemy(currentEnemy);
+    gainExp(20);
+  } else {
+    if (seWrong) seWrong.play().catch(() => {});
+    gameState.hp = Math.max(0, gameState.hp - 1);
+  }
+  currentEnemy = null;
+  updateUI();
+  gameState.isPaused = false;
+}
+
+function removeEnemy(enemy) {
+  if (!enemy) return;
+  if (enemy.el && enemy.el.parentNode) enemy.el.remove();
+  gameState.enemies = gameState.enemies.filter((e) => e !== enemy);
+}
+
+function gainExp(amount) {
+  gameState.exp += amount;
+  if (gameState.exp >= gameState.maxExp) {
+    gameState.exp -= gameState.maxExp;
+    levelUp();
+  }
+}
+
 // UI更新
 function updateUI() {
   // HPハート表示
@@ -305,6 +385,9 @@ function gameLoop() {
 
   // 敵移動
   moveEnemies();
+
+  // 衝突判定
+  checkCollision();
 
   // 次のフレームをリクエスト
   requestAnimationFrame(gameLoop);
