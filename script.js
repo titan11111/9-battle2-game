@@ -294,6 +294,12 @@ function gameLoop() {
 
   // 移動処理
   if (dx !== 0 || dy !== 0) {
+    // 斜め移動の速度調整
+    if (dx !== 0 && dy !== 0) {
+      const scale = Math.SQRT1_2; // 1/√2
+      dx *= scale;
+      dy *= scale;
+    }
     moveHero(dx, dy);
   }
 
