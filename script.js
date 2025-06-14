@@ -245,9 +245,15 @@ function moveEnemies() {
       enemy.angle = -enemy.angle;
     }
 
-    // 境界内に収める
-    enemy.x = Math.max(0, Math.min(area.clientWidth - enemySize, enemy.x));
-    enemy.y = Math.max(0, Math.min(area.clientHeight - enemySize, enemy.y));
+  if (!currentEnemy) {
+    gameState.isPaused = false;
+    return;
+  }
+  if (genres.length === 0) {
+    gameState.isPaused = false;
+    return;
+  }
+    setTimeout(spawnEnemies, 0);
 
     // DOM更新
     enemy.el.style.left = enemy.x + "px";
