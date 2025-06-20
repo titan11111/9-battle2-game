@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <!-- ゲーム画面 -->
   <div id="game-container">
     <div id="status-bar">
       <div id="hp-container"><span>HP:</span><div id="hp-hearts"></div></div>
@@ -19,11 +18,8 @@
       <div id="level-display">Lv.1</div>
     </div>
 
-    <div id="game-area">
-      <div id="player"></div>
-    </div>
+    <div id="game-area"><div id="player"></div></div>
 
-    <!-- スマホ用仮想コントローラー -->
     <div id="controller">
       <div id="controller-row1">
         <button id="btn-up">↑</button>
@@ -34,25 +30,28 @@
         <button id="btn-right">→</button>
       </div>
     </div>
+  </div>
 
-    <div id="quiz-container" class="hidden">
-      <p id="quiz-question"></p>
-      <div id="quiz-choices">
-        <button class="choice-btn" data-index="0"></button>
-        <button class="choice-btn" data-index="1"></button>
-        <button class="choice-btn" data-index="2"></button>
-        <button class="choice-btn" data-index="3"></button>
-      </div>
+  <div id="quiz-container" class="hidden">
+    <div id="quiz-box">
+      <p id="quiz-genre"></p>
+      <p id="quiz-question">ここにクイズ</p>
+      <div id="quiz-options"></div>
     </div>
   </div>
 
-  <!-- 音声ファイル -->
+  <div id="gameover-container" class="hidden">
+    <div id="gameover-box">
+      <p id="gameover-text">ゲームオーバー</p>
+      <button id="restart-button">リトライ</button>
+    </div>
+  </div>
+  
   <audio id="bgm-field" src="./audio/field.mp3" loop preload="auto"></audio>
   <audio id="se-correct" src="./audio/seikai2.mp3" preload="auto"></audio>
   <audio id="se-wrong" src="./audio/fuseikai2.mp3" preload="auto"></audio>
   <audio id="se-levelup" src="./audio/levelup.mp3" preload="auto"></audio>
 
-  <!-- スクリプト（defer付き） -->
   <script src="./script.js" defer></script>
 </body>
 </html>
