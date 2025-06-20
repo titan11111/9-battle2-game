@@ -1,438 +1,419 @@
-// script.js - 携帯対応版クイズバトルRPG
-
-// 入力状態
 const keys = {};
-const vKeys = { up: false, down: false, left: false, right: false };
+const vKeys = { up:false, down:false, left:false, right:false };
 
-// ゲーム状態
 const gameState = {
-  player: { x: 200, y: 200, speed: 4 },
+  player: { x:0, y:0, speed:4, hp:3, exp:0, level:1 },
   enemies: [],
   isPaused: false,
-  level: 1,
-  exp: 0,
-  maxExp: 100,
-  hp: 3,
-  maxHp: 3
+  quizData: {},
+  gameStarted: false
 };
 
-// BGM要素保持
 let bgmField;
-let seCorrect, seWrong, seLevelup;
 
-// 初期化
-document.addEventListener("DOMContentLoaded", startGame);
-
-let quizData = {};
-let currentEnemy = null;
-
-function startGame() {
-  fetch("./quizData.json")
-    .then((res) => res.json())
-    .then((data) => {
-      quizData = data;
-      initializeGame();
-      setupControls();
-      spawnEnemies();
-      updateUI();
-      requestAnimationFrame(gameLoop);
-    })
-    .catch((err) => console.error("failed to load quiz data:", err));
-}
-
-// ゲーム初期化
-function initializeGame() {
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("ゲーム初期化開始");
+  
   const playerEl = document.getElementById("player");
   const areaEl = document.getElementById("game-area");
 
-  // プレイヤー画像設定
-  playerEl.style.backgroundImage = "url('./images/hero.png')";
-  playerEl.style.backgroundSize = "contain";
-  playerEl.style.backgroundRepeat = "no-repeat";
-  playerEl.style.backgroundPosition = "center";
+  // CSS読み込み完了を待つ
+  await new Promise(resolve => {
+    if (document.readyState === 'complete') {
+      resolve();
+    } else {
+      window.addEventListener('load', resolve);
+    }
+  });
 
-  // 背景画像設定
-  areaEl.style.backgroundImage = "url('./images/fi-rudo.png')";
-  areaEl.style.backgroundSize = "cover";
-  areaEl.style.backgroundRepeat = "repeat";
+  // プレイヤーの初期位置を設定（固定値を使用）
+  const playerWidth = 48;  // CSSで設定した値
+  const playerHeight = 48; // CSSで設定した値
+  const areaWidth = areaEl.clientWidth || window.innerWidth;
+  const areaHeight = areaEl.clientHeight || window.innerHeight;
+  
+  gameState.player.x = (areaWidth / 2) - (playerWidth / 2);
+  gameState.player.y = (areaHeight / 2) - (playerHeight / 2);
+  
+  playerEl.style.left = gameState.player.x + "px";
+  playerEl.style.top = gameState.player.y + "px";
 
-  // オーディオ要素取得
+  console.log(`プレイヤー初期位置: x=${gameState.player.x}, y=${gameState.player.y}`);
+  console.log(`ゲームエリアサイズ: ${areaWidth} x ${areaHeight}`);
+
   bgmField = document.getElementById("bgm-field");
-  seCorrect = document.getElementById("se-correct");
-  seWrong = document.getElementById("se-wrong");
-  seLevelup = document.getElementById("se-levelup");
 
-  // プレイヤー初期位置設定
-  // 画面サイズが小さい場合でもプレイヤーが画面外に出ないよう補正
-  gameState.player.x = Math.max(0, Math.min(areaEl.clientWidth - 48, gameState.player.x));
-  gameState.player.y = Math.max(0, Math.min(areaEl.clientHeight - 48, gameState.player.y));
-  updatePlayerPosition();
-}
-
-// 操作設定
-function setupControls() {
-  // キーボード操作
-  document.addEventListener("keydown", (e) => {
-    keys[e.key] = true;
-    startBGM();
-    e.preventDefault();
+  // キーボードイベント
+  document.addEventListener("keydown", e => { 
+    keys[e.key] = true; 
+    startBGM(); 
+  });
+  document.addEventListener("keyup", e => { 
+    delete keys[e.key]; 
   });
 
-  document.addEventListener("keyup", (e) => {
-    delete keys[e.key];
-    e.preventDefault();
+  // タッチ操作
+  [["btn-up","up"],["btn-down","down"],["btn-left","left"],["btn-right","right"]].forEach(([id,dir]) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      ["mousedown","touchstart"].forEach(ev => 
+        btn.addEventListener(ev, e => { 
+          e.preventDefault(); 
+          vKeys[dir] = true; 
+          startBGM(); 
+        })
+      );
+      ["mouseup","mouseleave","touchend","touchcancel"].forEach(ev => 
+        btn.addEventListener(ev, e => { 
+          e.preventDefault(); 
+          vKeys[dir] = false; 
+        })
+      );
+    }
   });
 
-  // 仮想コントローラー設定
-  const controlButtons = [
-    { id: "btn-up", direction: "up" },
-    { id: "btn-down", direction: "down" },
-    { id: "btn-left", direction: "left" },
-    { id: "btn-right", direction: "right" }
-  ];
-
-  controlButtons.forEach(({ id, direction }) => {
-    const button = document.getElementById(id);
-    
-    // タッチスタート
-    button.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      vKeys[direction] = true;
-      startBGM();
-    }, { passive: false });
-
-    // マウスダウン（PCでのテスト用）
-    button.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      vKeys[direction] = true;
-      startBGM();
-    });
-
-    // タッチエンド
-    button.addEventListener("touchend", (e) => {
-      e.preventDefault();
-      vKeys[direction] = false;
-    }, { passive: false });
-
-    // タッチキャンセル
-    button.addEventListener("touchcancel", (e) => {
-      e.preventDefault();
-      vKeys[direction] = false;
-    }, { passive: false });
-
-    // マウスアップ
-    button.addEventListener("mouseup", (e) => {
-      e.preventDefault();
-      vKeys[direction] = false;
-    });
-
-    // マウスリーブ
-    button.addEventListener("mouseleave", (e) => {
-      e.preventDefault();
-      vKeys[direction] = false;
-    });
+  // リスタートボタン
+  document.getElementById("restart-button").addEventListener("click", () => {
+    location.reload();
   });
 
-  // タッチ操作の改善
-  document.addEventListener("touchmove", (e) => {
-    e.preventDefault();
-  }, { passive: false });
-}
+  // クイズデータ読み込み
+  await loadQuizData();
+  
+  // 初期化完了
+  updateStatusUI();
+  spawnEnemies();
+  gameState.gameStarted = true;
+  console.log("ゲーム初期化完了");
+  
+  requestAnimationFrame(gameLoop);
+});
 
-// BGM再生開始
 function startBGM() {
   if (bgmField && bgmField.paused) {
     bgmField.volume = 0.3;
-    bgmField.play().catch(() => {});
+    bgmField.play().catch(error => {
+      console.warn("BGMの自動再生がブロックされました:", error);
+    });
   }
 }
 
-// プレイヤー移動
-function moveHero(dx, dy) {
-  if (gameState.isPaused) return;
-
-  const area = document.getElementById("game-area");
-  const playerSize = 48;
-
-  // 新しい位置を計算
-  gameState.player.x += dx * gameState.player.speed;
-  gameState.player.y += dy * gameState.player.speed;
-
-  // 画面境界チェック
-  gameState.player.x = Math.max(0, Math.min(area.clientWidth - playerSize, gameState.player.x));
-  gameState.player.y = Math.max(0, Math.min(area.clientHeight - playerSize, gameState.player.y));
-
-  // 位置更新
-  updatePlayerPosition();
+function updateStatusUI() {
+  const hp = gameState.player.hp;
+  document.getElementById("hp-hearts").innerHTML = "♥".repeat(Math.max(0, hp));
+  document.getElementById("exp-fill").style.width = `${(gameState.player.exp % 100)}%`;
+  document.getElementById("exp-text").textContent = `${gameState.player.exp % 100}/100`;
+  document.getElementById("level-display").textContent = `Lv.${gameState.player.level}`;
 }
 
-// プレイヤー位置更新
-function updatePlayerPosition() {
+async function loadQuizData() {
+  try {
+    console.log("クイズデータ読み込み開始");
+    const res = await fetch("./quizData.json");
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+    gameState.quizData = await res.json();
+
+    if (Object.keys(gameState.quizData).length === 0) {
+      throw new Error("quizData.jsonが空です");
+    }
+    console.log("クイズデータ読み込み成功。ジャンル数:", Object.keys(gameState.quizData).length);
+
+  } catch (error) {
+    console.error("クイズデータ読み込みエラー:", error);
+    // エラー時はデフォルトデータを使用
+    gameState.quizData = {
+      "テスト": [
+        { "q": "1+1は？", "a": ["1", "2", "3", "4"], "c": 1 },
+        { "q": "日本の首都は？", "a": ["大阪", "東京", "京都", "福岡"], "c": 1 }
+      ]
+    };
+    console.log("デフォルトクイズデータを使用します");
+  }
+}
+
+function moveHero(dx, dy) {
+  if (gameState.isPaused || !gameState.gameStarted) return;
+  
+  const area = document.getElementById("game-area");
   const playerEl = document.getElementById("player");
+  const playerWidth = 48;
+  const playerHeight = 48;
+  
+  const newX = gameState.player.x + dx * gameState.player.speed;
+  const newY = gameState.player.y + dy * gameState.player.speed;
+  
+  gameState.player.x = Math.max(0, Math.min(area.clientWidth - playerWidth, newX));
+  gameState.player.y = Math.max(0, Math.min(area.clientHeight - playerHeight, newY));
+  
   playerEl.style.left = gameState.player.x + "px";
   playerEl.style.top = gameState.player.y + "px";
 }
 
-// 敵生成
 function spawnEnemies() {
+  const genres = Object.keys(gameState.quizData);
   const area = document.getElementById("game-area");
   
-  // 既存の敵をクリア
-  gameState.enemies.forEach(enemy => {
-    if (enemy.el && enemy.el.parentNode) {
-      enemy.el.remove();
+  // 既存の敵を削除
+  gameState.enemies.forEach(e => {
+    if (e.el && e.el.parentNode) {
+      e.el.remove();
     }
   });
   gameState.enemies = [];
 
-  // 新しい敵を生成
-  for (let i = 1; i <= 10; i++) {
-    const enemyEl = document.createElement("div");
-    enemyEl.className = "enemy";
-    enemyEl.style.backgroundImage = `url('./images/enemy${i}.png')`;
-    enemyEl.style.backgroundSize = "contain";
-    enemyEl.style.backgroundRepeat = "no-repeat";
-    enemyEl.style.backgroundPosition = "center";
+  if (genres.length === 0) {
+    console.error("クイズデータにジャンルがありません");
+    return;
+  }
 
-    // ランダム位置（プレイヤーから離れた場所）
+  const playerSize = 48;
+  const enemySize = 80;
+  const safeZone = 150; // 安全地帯を少し小さく
+  const numberOfEnemies = 8; // 敵の数を少し減らす
+
+  console.log("敵生成開始:", numberOfEnemies + "体");
+
+  for (let i = 0; i < numberOfEnemies; i++) {
+    const el = document.createElement("div");
+    el.className = "enemy";
+    el.style.backgroundImage = `url('./images/enemy${(i % 10) + 1}.png')`;
+
     let x, y;
+    let validPosition = false;
     let attempts = 0;
-    do {
-      x = Math.random() * (area.clientWidth - 80);
-      y = Math.random() * (area.clientHeight - 80);
-      attempts++;
-      if (attempts > 100) {
-        // 画面が極端に狭い場合はループを抜ける
-        break;
+    const maxAttempts = 50;
+
+    while (!validPosition && attempts < maxAttempts) {
+      x = Math.random() * (area.clientWidth - enemySize);
+      y = Math.random() * (area.clientHeight - enemySize);
+
+      const playerCenterX = gameState.player.x + playerSize / 2;
+      const playerCenterY = gameState.player.y + playerSize / 2;
+      const enemyCenterX = x + enemySize / 2;
+      const enemyCenterY = y + enemySize / 2;
+
+      const distance = Math.hypot(playerCenterX - enemyCenterX, playerCenterY - enemyCenterY);
+
+      if (distance > safeZone) {
+        validPosition = true;
       }
-    } while (
-      Math.hypot(x - gameState.player.x, y - gameState.player.y) < 150
-    );
+      attempts++;
+    }
 
-    enemyEl.style.left = x + "px";
-    enemyEl.style.top = y + "px";
-    area.appendChild(enemyEl);
+    // 有効な位置が見つからない場合は端に配置
+    if (!validPosition) {
+      x = Math.random() < 0.5 ? 0 : area.clientWidth - enemySize;
+      y = Math.random() * (area.clientHeight - enemySize);
+    }
 
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    area.appendChild(el);
+
+    const assignedGenre = genres[i % genres.length];
     const enemy = {
-      el: enemyEl,
-      x: x,
-      y: y,
-      speed: 1 + Math.random() * 2,
+      el, x, y,
+      speed: 0.5 + Math.random() * 1.5, // 速度を少し遅く
       angle: Math.random() * Math.PI * 2,
-      type: i
+      hasHit: false,
+      genre: assignedGenre,
+      lastQuizTime: 0  // 最後にクイズを出した時間を記録
     };
-
+    
     gameState.enemies.push(enemy);
+    console.log(`敵${i + 1}生成: ジャンル=${assignedGenre}, 位置=(${Math.round(x)},${Math.round(y)})`);
   }
 }
 
-// 敵移動
 function moveEnemies() {
-  if (gameState.isPaused) return;
+  if (gameState.isPaused || !gameState.gameStarted) return;
+  
   const area = document.getElementById("game-area");
   const enemySize = 80;
-
+  
   gameState.enemies.forEach(enemy => {
-    // 移動計算
+    if (!enemy.el || !enemy.el.parentNode) return;
+    
+    // 新しい位置を計算
     enemy.x += Math.cos(enemy.angle) * enemy.speed;
     enemy.y += Math.sin(enemy.angle) * enemy.speed;
-
-    // 壁との衝突判定
+    
+    // 境界チェックと反射
     if (enemy.x <= 0 || enemy.x >= area.clientWidth - enemySize) {
       enemy.angle = Math.PI - enemy.angle;
+      enemy.x = Math.max(0, Math.min(area.clientWidth - enemySize, enemy.x));
     }
     if (enemy.y <= 0 || enemy.y >= area.clientHeight - enemySize) {
       enemy.angle = -enemy.angle;
+      enemy.y = Math.max(0, Math.min(area.clientHeight - enemySize, enemy.y));
     }
-
-  if (!currentEnemy) {
-    gameState.isPaused = false;
-    return;
-  }
-  if (genres.length === 0) {
-    gameState.isPaused = false;
-    return;
-  }
-    setTimeout(spawnEnemies, 0);
-
-    // DOM更新
+    
+    // DOM要素の位置を更新
     enemy.el.style.left = enemy.x + "px";
     enemy.el.style.top = enemy.y + "px";
   });
 }
 
 function checkCollision() {
-  if (gameState.isPaused) return;
+  if (gameState.isPaused || !gameState.gameStarted) return;
+  
   const playerSize = 48;
   const enemySize = 80;
-  const px = gameState.player.x;
-  const py = gameState.player.y;
-  for (const enemy of gameState.enemies) {
-    if (
-      px < enemy.x + enemySize &&
-      px + playerSize > enemy.x &&
-      py < enemy.y + enemySize &&
-      py + playerSize > enemy.y
-    ) {
-      currentEnemy = enemy;
-      gameState.isPaused = true;
-      showQuiz();
-      break;
-    }
-  }
-}
+  const collisionDistance = 40; // 衝突判定距離を大きく
+  
+  const playerCenterX = gameState.player.x + playerSize / 2;
+  const playerCenterY = gameState.player.y + playerSize / 2;
+  const currentTime = Date.now();
 
-function showQuiz() {
-  if (!currentEnemy) return;
-  const genres = Object.keys(quizData);
-  if (genres.length === 0) return;
-  const genre = genres[Math.floor(Math.random() * genres.length)];
-  const pool = quizData[genre];
-  const quiz = pool[Math.floor(Math.random() * pool.length)];
-  const container = document.getElementById("quiz-container");
-  document.getElementById("quiz-question").textContent = quiz.question;
-  quiz.choices.forEach((c, i) => {
-    const btn = container.querySelector(`.choice-btn[data-index="${i}"]`);
-    if (btn) {
-      btn.textContent = c;
-      btn.onclick = () => answerQuiz(i, quiz.correctAnswer);
+  gameState.enemies.forEach(enemy => {
+    if (!enemy.el || !enemy.el.parentNode) return;
+
+    const enemyCenterX = enemy.x + enemySize / 2;
+    const enemyCenterY = enemy.y + enemySize / 2;
+    const distance = Math.hypot(playerCenterX - enemyCenterX, playerCenterY - enemyCenterY);
+
+    // 衝突判定を行い、前回のクイズから1秒以上経過していればクイズを表示
+    if (distance < collisionDistance && (currentTime - enemy.lastQuizTime) > 1000) {
+      console.log("衝突検出！ジャンル:", enemy.genre, "距離:", Math.round(distance));
+      enemy.lastQuizTime = currentTime;  // クイズを出した時間を記録
+      showQuiz(enemy);
     }
   });
-  container.classList.remove("hidden");
 }
 
-function answerQuiz(choice, correct) {
-  document.getElementById("quiz-container").classList.add("hidden");
-  if (choice === correct) {
-    if (seCorrect) seCorrect.play().catch(() => {});
-    removeEnemy(currentEnemy);
-    gainExp(20);
-  } else {
-    if (seWrong) seWrong.play().catch(() => {});
-    gameState.hp = Math.max(0, gameState.hp - 1);
-  }
-  currentEnemy = null;
-  updateUI();
-  gameState.isPaused = false;
-}
+function showQuiz(enemy) {
+  gameState.isPaused = true;
+  const genre = enemy.genre;
+  const quizList = gameState.quizData[genre];
 
-function removeEnemy(enemy) {
-  if (!enemy) return;
-  if (enemy.el && enemy.el.parentNode) enemy.el.remove();
-  gameState.enemies = gameState.enemies.filter((e) => e !== enemy);
-codex/バグを修正する
-  if (gameState.enemies.length === 0) {
-    spawnEnemies();
-  }
+  console.log("クイズ表示:", genre);
 
- main
-}
-
-function gainExp(amount) {
-  gameState.exp += amount;
-  if (gameState.exp >= gameState.maxExp) {
-    gameState.exp -= gameState.maxExp;
-    levelUp();
-  }
-}
-
-// UI更新
-function updateUI() {
-  // HPハート表示
-  const heartsContainer = document.getElementById("hp-hearts");
-  heartsContainer.innerHTML = "";
-  for (let i = 0; i < gameState.maxHp; i++) {
-    const heart = document.createElement("span");
-    heart.className = "heart";
-    heart.textContent = i < gameState.hp ? "♥" : "♡";
-    heartsContainer.appendChild(heart);
-  }
-
-  // 経験値バー
-  const expFill = document.getElementById("exp-fill");
-  const expText = document.getElementById("exp-text");
-  const expPercent = (gameState.exp / gameState.maxExp) * 100;
-  expFill.style.width = expPercent + "%";
-  expText.textContent = `${gameState.exp}/${gameState.maxExp}`;
-
-  // レベル表示
-  const levelDisplay = document.getElementById("level-display");
-  levelDisplay.textContent = `Lv.${gameState.level}`;
-}
-
-// レベルアップ処理
-function levelUp() {
-  gameState.level++;
-  gameState.exp = 0;
-  gameState.maxExp = Math.floor(gameState.maxExp * 1.2);
-  gameState.maxHp++;
-  gameState.hp = gameState.maxHp;
-  
-  if (seLevelup) {
-    seLevelup.volume = 0.5;
-    seLevelup.play().catch(() => {});
-  }
-  
-  updateUI();
-}
-
-// メインゲームループ
-function gameLoop() {
-  // 入力処理
-  let dx = 0;
-  let dy = 0;
-
-  // キーボード入力
-  if (keys.ArrowRight || keys.d || keys.D) dx += 1;
-  if (keys.ArrowLeft || keys.a || keys.A) dx -= 1;
-  if (keys.ArrowDown || keys.s || keys.S) dy += 1;
-  if (keys.ArrowUp || keys.w || keys.W) dy -= 1;
-
-  // 仮想コントローラー入力
-  if (vKeys.right) dx += 1;
-  if (vKeys.left) dx -= 1;
-  if (vKeys.down) dy += 1;
-  if (vKeys.up) dy -= 1;
-
-  // 移動処理
-  if (dx !== 0 || dy !== 0) {
-    // 斜め移動の速度調整
-    if (dx !== 0 && dy !== 0) {
-      const scale = Math.SQRT1_2; // 1/√2
-      dx *= scale;
-      dy *= scale;
+  if (!quizList || quizList.length === 0) {
+    console.error(`ジャンル '${genre}' のクイズが見つかりません`);
+    
+    // エラー時はHP減少
+    gameState.player.hp--;
+    if (document.getElementById("se-wrong")) {
+      document.getElementById("se-wrong").play();
     }
+    updateStatusUI();
+    
+    setTimeout(() => {
+      gameState.isPaused = false;
+      if (gameState.player.hp <= 0) {
+        showGameOver();
+      }
+    }, 1000);
+    return;
+  }
+
+  const quiz = quizList[Math.floor(Math.random() * quizList.length)];
+
+  document.getElementById("quiz-genre").textContent = `【${genre}】の問題`;
+  document.getElementById("quiz-question").textContent = quiz.q;
+  
+  const optionsEl = document.getElementById("quiz-options");
+  optionsEl.innerHTML = "";
+  
+  quiz.a.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    btn.addEventListener("click", () => {
+      handleAnswer(i === quiz.c, enemy);
+    });
+    optionsEl.appendChild(btn);
+  });
+
+  const quizEl = document.getElementById("quiz-container");
+  quizEl.classList.remove("hidden");
+  quizEl.style.display = "flex";
+}
+
+function handleAnswer(correct, enemy) {
+  const quizEl = document.getElementById("quiz-container");
+  quizEl.classList.add("hidden");
+  quizEl.style.display = "none";
+
+  if (correct) {
+    console.log("正解！");
+    if (document.getElementById("se-correct")) {
+      document.getElementById("se-correct").play();
+    }
+    
+    // 敵を削除
+    if (enemy.el && enemy.el.parentNode) {
+      enemy.el.remove();
+    }
+    gameState.enemies = gameState.enemies.filter(e => e !== enemy);
+    
+    // 経験値増加
+    gameState.player.exp += 20;
+    if (gameState.player.exp >= 100) {
+      gameState.player.level++;
+      gameState.player.exp = 0;
+      if (document.getElementById("se-levelup")) {
+        document.getElementById("se-levelup").play();
+      }
+      console.log("レベルアップ！ Lv." + gameState.player.level);
+    }
+
+    // すべての敵を倒したら、再度敵を出現させる
+    if (gameState.enemies.length === 0) {
+      console.log("すべての敵を倒しました！新しい敵を出現させます。");
+      spawnEnemies();
+    }
+
+  } else {
+    console.log("不正解...");
+    if (document.getElementById("se-wrong")) {
+      document.getElementById("se-wrong").play();
+    }
+    gameState.player.hp--;
+    
+    // 不正解の場合、敵は削除されずに残る
+    // hasHitフラグはリセットしない（時間制御を使用）
+  }
+
+  updateStatusUI();
+  gameState.isPaused = false;
+  
+  if (gameState.player.hp <= 0) {
+    showGameOver();
+  }
+}
+
+function showGameOver() {
+  console.log("ゲームオーバー");
+  gameState.isPaused = true;
+  
+  if (bgmField && !bgmField.paused) {
+    bgmField.pause();
+  }
+  
+  const gameoverContainer = document.getElementById("gameover-container");
+  gameoverContainer.classList.remove("hidden");
+  gameoverContainer.style.display = "flex";
+}
+
+function gameLoop() {
+  if (!gameState.gameStarted) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  // キー入力処理
+  const dx = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0) + 
+            (vKeys.right ? 1 : 0) - (vKeys.left ? 1 : 0);
+  const dy = (keys.ArrowDown ? 1 : 0) - (keys.ArrowUp ? 1 : 0) + 
+            (vKeys.down ? 1 : 0) - (vKeys.up ? 1 : 0);
+
+  if (dx !== 0 || dy !== 0) {
     moveHero(dx, dy);
   }
 
-  // 敵移動
   moveEnemies();
-
-  // 衝突判定
   checkCollision();
-
-  // 次のフレームをリクエスト
   requestAnimationFrame(gameLoop);
 }
-
-// 画面サイズ変更時の処理
-window.addEventListener("resize", () => {
-  // プレイヤー位置を画面内に調整
-  const area = document.getElementById("game-area");
-  const playerSize = 48;
-  gameState.player.x = Math.max(0, Math.min(area.clientWidth - playerSize, gameState.player.x));
-  gameState.player.y = Math.max(0, Math.min(area.clientHeight - playerSize, gameState.player.y));
-  updatePlayerPosition();
-});
-
-// タッチ操作の無効化（スクロール防止）
-document.addEventListener("touchstart", (e) => {
-  if (e.target.closest("#controller")) {
-    return; // コントローラー部分は除外
-  }
-  e.preventDefault();
-}, { passive: false });
-
-document.addEventListener("touchmove", (e) => {
-  e.preventDefault();
-}, { passive: false });
