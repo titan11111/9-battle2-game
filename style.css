@@ -13,7 +13,7 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 #game-container {
@@ -44,6 +44,7 @@ body {
   background-position: center;
   z-index: 10;
   transition: all 0.1s ease;
+  /* border: 2px solid rgba(0, 255, 0, 0.5); /* デバッグ用の緑枠線 */
 }
 
 .enemy {
@@ -54,6 +55,7 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   z-index: 5;
+  /* border: 2px solid rgba(255, 0, 0, 0.3); /* デバッグ用の赤枠線 */
 }
 
 #status-bar {
@@ -110,7 +112,6 @@ body {
   color: yellow;
 }
 
-/* スマホ用コントローラー */
 #controller {
   position: fixed;
   bottom: 20px;
@@ -143,9 +144,6 @@ body {
   border: 3px solid rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
   touch-action: manipulation;
   transition: all 0.1s ease;
 }
@@ -160,100 +158,191 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* タブレット・大画面スマホ用調整 */
-@media (min-width: 768px) {
-  #status-bar {
-    font-size: 12px;
-    padding: 10px 15px;
-    gap: 20px;
-  }
-  
-  #hp-hearts .heart {
-    font-size: 20px;
-  }
-  
-  #exp-bar {
-    width: 160px;
-    height: 20px;
-  }
-  
-  #exp-text {
-    font-size: 10px;
-  }
-  
-  #level-display {
-    font-size: 12px;
-  }
-  
-  #controller button {
-    width: 70px;
-    height: 70px;
-    font-size: 24px;
-  }
+/* クイズ画面 */
+#quiz-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 縦向きスマホ用調整 */
-@media (max-width: 480px) and (orientation: portrait) {
-  #controller {
-    bottom: 15px;
-    left: 15px;
-  }
-  
-  #controller button {
-    width: 50px;
-    height: 50px;
-    font-size: 18px;
-  }
-  
+#quiz-box {
+  background: #222;
+  border: 3px solid white;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 80%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#quiz-genre {
+  font-size: 14px;
+  color: #ffcc00;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#quiz-question {
+  font-size: 14px;
+  color: white;
+  margin: 20px 0;
+  line-height: 1.6;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+#quiz-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+#quiz-options button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
+  color: white;
+  border: 2px solid #aaa;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  min-height: 50px;
+}
+
+#quiz-options button:hover {
+  background: linear-gradient(135deg, #5a5a5a, #3a3a3a);
+  border-color: #ffcc00;
+  transform: translateY(-2px);
+}
+
+#quiz-options button:active {
+  transform: translateY(0);
+}
+
+/* ゲームオーバー画面 */
+#gameover-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+#gameover-box {
+  background: #330000;
+  border: 5px solid #ff0000;
+  border-radius: 15px;
+  padding: 40px 60px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+  transform: scale(0.9);
+  animation: popIn 0.5s ease-out forwards;
+}
+
+#gameover-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2em;
+  color: #ffffff;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.7), 0 0 5px rgba(255, 255, 255, 0.9);
+  margin-bottom: 30px;
+  letter-spacing: 3px;
+  animation: pulse 1.5s infinite alternate;
+}
+
+#restart-button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.2em;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: 3px solid #0056b3;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#restart-button:hover {
+  background: linear-gradient(135deg, #0056b3, #003a72);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+#restart-button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* アニメーションキーフレーム */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.05); opacity: 0.8; }
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
   #status-bar {
     font-size: 8px;
-    padding: 6px 8px;
+    padding: 6px 10px;
     gap: 10px;
   }
   
-  #hp-hearts .heart {
-    font-size: 14px;
-  }
-  
   #exp-bar {
-    width: 100px;
+    width: 80px;
     height: 12px;
   }
-}
-
-/* 横向きスマホ用調整 */
-@media (max-width: 768px) and (orientation: landscape) {
-  #controller {
-    bottom: 10px;
-    left: 10px;
+  
+  #quiz-box {
+    padding: 15px;
+    max-width: 95%;
   }
   
-  #status-bar {
-    top: 5px;
-    left: 5px;
+  #quiz-question {
+    font-size: 12px;
   }
-}
-
-#quiz-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.9);
-  border: 2px solid white;
-  padding: 20px;
-  z-index: 100;
-  max-width: 320px;
-  box-sizing: border-box;
-}
-
-.choice-btn {
-  display: block;
-  width: 100%;
-  margin: 6px 0;
-  padding: 10px;
-  background: #333;
-  color: #fff;
-  border: 1px solid #fff;
-  cursor: pointer;
+  
+  #quiz-options button {
+    font-size: 10px;
+    padding: 10px 15px;
+  }
+  
+  #gameover-text {
+    font-size: 1.5em;
+  }
+  
+  #restart-button {
+    font-size: 1em;
+    padding: 12px 25px;
+  }
 }
