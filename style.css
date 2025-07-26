@@ -58,6 +58,52 @@ body {
   /* border: 2px solid rgba(255, 0, 0, 0.3); /* デバッグ用の赤枠線 */
 }
 
+/* アイテムスタイル */
+.item {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #ffcc00;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  z-index: 8;
+  animation: itemFloat 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
+}
+
+@keyframes itemFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+/* アイテムエフェクト */
+.item-effect {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #ffcc00, #ff6600);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 3000;
+  animation: effectPop 2s ease-out forwards;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+}
+
+@keyframes effectPop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+}
+
 #status-bar {
   position: absolute;
   top: 10px;
@@ -73,6 +119,8 @@ body {
   gap: 15px;
   align-items: center;
   font-size: 10px;
+  flex-wrap: wrap;
+  max-width: 80%;
 }
 
 #hp-hearts {
@@ -110,6 +158,27 @@ body {
 #level-display {
   font-size: 10px;
   color: yellow;
+}
+
+#score-display, #combo-display {
+  font-size: 10px;
+  color: #ffcc00;
+  background: rgba(255, 204, 0, 0.2);
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid #ffcc00;
+}
+
+#combo-display {
+  color: #ff6600;
+  background: rgba(255, 102, 0, 0.2);
+  border-color: #ff6600;
+  animation: comboPulse 0.5s ease-in-out;
+}
+
+@keyframes comboPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 #controller {
@@ -156,6 +225,41 @@ body {
 
 #controller button:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* 特殊能力ボタン */
+.ability-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ability-button {
+  width: 50px;
+  height: 50px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.5;
+}
+
+.ability-button.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ffcc00;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+}
+
+.ability-button:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* クイズ画面 */
@@ -268,6 +372,7 @@ body {
   margin-bottom: 30px;
   letter-spacing: 3px;
   animation: pulse 1.5s infinite alternate;
+  line-height: 1.4;
 }
 
 #restart-button {
@@ -316,11 +421,17 @@ body {
     font-size: 8px;
     padding: 6px 10px;
     gap: 10px;
+    max-width: 95%;
   }
   
   #exp-bar {
     width: 80px;
     height: 12px;
+  }
+  
+  #score-display, #combo-display {
+    font-size: 8px;
+    padding: 2px 6px;
   }
   
   #quiz-box {
@@ -344,5 +455,22 @@ body {
   #restart-button {
     font-size: 1em;
     padding: 12px 25px;
+  }
+  
+  .item {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+  
+  .ability-buttons {
+    bottom: 10px;
+    right: 10px;
+  }
+  
+  .ability-button {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
   }
 }
