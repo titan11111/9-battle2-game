@@ -44,7 +44,7 @@ body {
   background-position: center;
   z-index: 10;
   transition: all 0.1s ease;
-  /* border: 2px solid rgba(0, 255, 0, 0.5); /* デバッグ用の緑枠線 */
+  /* デバッグ用緑枠線: border: 2px solid rgba(0, 255, 0, 0.5); */
 }
 
 .enemy {
@@ -55,7 +55,7 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   z-index: 5;
-  /* border: 2px solid rgba(255, 0, 0, 0.3); /* デバッグ用の赤枠線 */
+  /* デバッグ用赤枠線: border: 2px solid rgba(255, 0, 0, 0.3); */
 }
 
 /* アイテムスタイル */
