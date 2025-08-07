@@ -27,8 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // プレイヤーの初期位置を設定（固定値を使用）
-  const playerWidth = 48;  // CSSで設定した値
-  const playerHeight = 48; // CSSで設定した値
+  const playerWidth = 64;  // CSSで設定した値
+  const playerHeight = 64; // CSSで設定した値
   const areaWidth = areaEl.clientWidth || window.innerWidth;
   const areaHeight = areaEl.clientHeight || window.innerHeight;
   
@@ -83,9 +83,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 初期化完了
   updateStatusUI();
   spawnEnemies();
-  gameState.gameStarted = true;
+  document.getElementById("tutorial-start").addEventListener("click", () => {
+    document.getElementById("tutorial-container").classList.add("hidden");
+    gameState.gameStarted = true;
+    startBGM();
+  });
   console.log("ゲーム初期化完了");
-  
+
   requestAnimationFrame(gameLoop);
 });
 
@@ -138,8 +142,8 @@ function moveHero(dx, dy) {
   
   const area = document.getElementById("game-area");
   const playerEl = document.getElementById("player");
-  const playerWidth = 48;
-  const playerHeight = 48;
+  const playerWidth = 64;
+  const playerHeight = 64;
   
   const newX = gameState.player.x + dx * gameState.player.speed;
   const newY = gameState.player.y + dy * gameState.player.speed;
@@ -168,8 +172,8 @@ function spawnEnemies() {
     return;
   }
 
-  const playerSize = 48;
-  const enemySize = 80;
+  const playerSize = 64;
+  const enemySize = 72;
   const safeZone = 150; // 安全地帯を少し小さく
   const numberOfEnemies = 8; // 敵の数を少し減らす
 
@@ -231,7 +235,7 @@ function moveEnemies() {
   if (gameState.isPaused || !gameState.gameStarted) return;
   
   const area = document.getElementById("game-area");
-  const enemySize = 80;
+  const enemySize = 72;
   
   gameState.enemies.forEach(enemy => {
     if (!enemy.el || !enemy.el.parentNode) return;
@@ -259,9 +263,9 @@ function moveEnemies() {
 function checkCollision() {
   if (gameState.isPaused || !gameState.gameStarted) return;
   
-  const playerSize = 48;
-  const enemySize = 80;
-  const collisionDistance = 40; // 衝突判定距離を大きく
+  const playerSize = 64;
+  const enemySize = 72;
+  const collisionDistance = 50; // 衝突判定距離を大きく
   
   const playerCenterX = gameState.player.x + playerSize / 2;
   const playerCenterY = gameState.player.y + playerSize / 2;
